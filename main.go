@@ -34,7 +34,9 @@ func handleDir(dir string, eradicateAllPluses bool, recursive bool) {
 				}
 				output = rxMultiSpace.ReplaceAllString(output, " ")
 				output = strings.TrimSpace(output)
-				err = os.Rename(entries[i].Name(), output)
+				before := filepath.Join(dir, entries[i].Name())
+				after := filepath.Join(dir, output)
+				err = os.Rename(before, after)
 				if err != nil {
 					fmt.Println(err)
 				} else {
@@ -42,7 +44,7 @@ func handleDir(dir string, eradicateAllPluses bool, recursive bool) {
 				}
 			}
 		} else if recursive && info.Mode().IsDir() {
-			handleDir(filepath.Join(dir, info.Name()), eradicateAllPluses, recursive)
+			handleDir(dir+"/"+info.Name(), eradicateAllPluses, recursive)
 		}
 	}
 }
