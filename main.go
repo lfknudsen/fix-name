@@ -9,15 +9,17 @@ import (
 	"strings"
 )
 
-func handleDir(dir string, eradicateAllPluses bool, recursive bool) {
+func handleDir(dir string, eradicateAllPluses bool, recursive bool) (count, errors int) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	rxDoublePlus, _ := regexp.Compile(" {2}")
 	rxPlus, _ := regexp.Compile("[+]")
 	rxMultiSpace, _ := regexp.Compile("  +")
 
+	count = 0
+	errors = 0
 	for i := range entries {
 		info, err := entries[i].Info()
 		if err != nil {
@@ -38,15 +40,20 @@ func handleDir(dir string, eradicateAllPluses bool, recursive bool) {
 				after := filepath.Join(dir, output)
 				err = os.Rename(before, after)
 				if err != nil {
+					errors++
 					fmt.Println(err)
 				} else {
+					count++
 					fmt.Printf("%s  ->  %s\n", info.Name(), output)
 				}
 			}
 		} else if recursive && info.Mode().IsDir() {
-			handleDir(dir+"/"+info.Name(), eradicateAllPluses, recursive)
+			subCount, subErrors := handleDir(dir+"/"+info.Name(), eradicateAllPluses, recursive)
+			count += subCount
+			errors += subErrors
 		}
 	}
+	return count, errors
 }
 
 func main() {
@@ -64,5 +71,6 @@ func main() {
 		}
 	}
 
-	handleDir(".", eradicateAllPluses, recursive)
+	count, errors := handleDir(".", eradicateAllPluses, recursive)
+	fmt.Printf("Renamed %d files. Encountered %d errors.\n", count, errors)
 }
