@@ -1,3 +1,3 @@
-module gixname
+module fixname
 
 go 1.26
