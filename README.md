@@ -11,6 +11,12 @@ This CLI programme corrects that:\
 It will (as the final step) trim spaces from the start and end.\
 Works correctly with multi-character symbols.
 
+## Build
+
+```
+go build [-o <output filepath>]
+```
+
 ## Usage
 
 ```
