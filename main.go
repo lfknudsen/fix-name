@@ -9,14 +9,15 @@ import (
 	"strings"
 )
 
+var rxDoublePlus = regexp.MustCompile(" {2}")
+var rxPlus = regexp.MustCompile("[+]")
+var rxMultiSpace = regexp.MustCompile("  +")
+
 func handleDir(dir string, eradicateAllPluses bool, recursive bool) (count, errors int) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		log.Panic(err)
 	}
-	rxDoublePlus, _ := regexp.Compile(" {2}")
-	rxPlus, _ := regexp.Compile("[+]")
-	rxMultiSpace, _ := regexp.Compile("  +")
 
 	count = 0
 	errors = 0
