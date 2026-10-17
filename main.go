@@ -96,6 +96,11 @@ func printHelp() {
 
 func main() {
 	flag.Parse()
+	if *help {
+		printHelp()
+		os.Exit(0)
+	}
+
 	if len(*char) > 1 {
 		_, _ = fmt.Fprintf(os.Stderr, "Character to replace must be a single character.")
 		printHelp()
