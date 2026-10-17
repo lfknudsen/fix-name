@@ -30,6 +30,12 @@ var doubleSpaceReplacement = " +"
 // charRune is the rune to search file-names for.
 var charRune rune = '+'
 
+func removeExt(s string) (stem string, ext string) {
+	ext = filepath.Ext(s)
+	stem = strings.TrimSuffix(s, ext)
+	return stem, ext
+}
+
 func handleDir(dir string, wg *sync.WaitGroup) (int64, int64) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -45,16 +51,17 @@ func handleDir(dir string, wg *sync.WaitGroup) (int64, int64) {
 			continue
 		}
 		if info.Mode().IsRegular() {
-			if strings.ContainsRune(info.Name(), charRune) && !strings.ContainsRune(info.Name(), ' ') {
-				output := info.Name()
+			withoutExt, ext := removeExt(info.Name())
+			if strings.ContainsRune(withoutExt, charRune) && !strings.ContainsRune(info.Name(), ' ') {
+				output := withoutExt
 				output = rxMultiSpace.ReplaceAllString(output, " ")
 				output = rxChar.ReplaceAllString(output, " ")
 				if !*eradicateAll {
 					output = rxDoublePlus.ReplaceAllString(output, doubleSpaceReplacement)
 				}
 				output = rxMultiSpace.ReplaceAllString(output, " ")
-				output = strings.TrimSpace(output)
-				before := filepath.Join(dir, entries[i].Name())
+				output = strings.TrimSpace(output) + ext
+				before := filepath.Join(dir, info.Name())
 				after := filepath.Join(dir, output)
 				err = os.Rename(before, after)
 				if err != nil {
